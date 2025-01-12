@@ -1,0 +1,22 @@
+{
+    "Happy": [
+        {"song": "Happy Song", "artist": "Artist 1"},
+        {"song": "Joyful Beats", "artist": "Artist 2"},
+        {"song": "Sunny Day", "artist": "Artist 3"}
+    ],
+    "Sad": [
+        {"song": "Lonely Nights", "artist": "Artist 4"},
+        {"song": "Tears on the Piano", "artist": "Artist 5"},
+        {"song": "Heartbreak", "artist": "Artist 6"}
+    ],
+    "Relaxed": [
+        {"song": "Chill Vibes", "artist": "Artist 7"},
+        {"song": "Soft Waves", "artist": "Artist 8"},
+        {"song": "Peaceful Moments", "artist": "Artist 9"}
+    ],
+    "Energetic": [
+        {"song": "Jump", "artist": "Artist 10"},
+        {"song": "Run Fast", "artist": "Artist 11"},
+        {"song": "Pump It Up", "artist": "Artist 12"}
+    ]
+}
