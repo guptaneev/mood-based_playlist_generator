@@ -93,23 +93,38 @@ class GeneratorPage(ctk.CTkFrame):
     def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller
-        self.configure(fg_color="#D33232")  # Background color for Generator Page
+        self.configure(fg_color="#D33232")
 
-        # Configure grid layout for fullscreen
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_rowconfigure(1, weight=3)
-        self.grid_rowconfigure(2, weight=1)
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_columnconfigure(1, weight=1)
+        # Title
+        title_label = ctk.CTkLabel(
+            self,
+            text="Generate Your Playlist",
+            font=ctk.CTkFont(size=28, weight="bold"),
+            text_color="white"
+        )
+        title_label.grid(row=0, column=0, columnspan=3, pady=20)
 
-        # (1) Mood Selection Dropdown
+        # Tutorial Button
+        tutorial_button = ctk.CTkButton(
+            self,
+            text="Tutorial",
+            font=ctk.CTkFont(size=14, weight="bold"),
+            command=lambda: controller.show_frame("TutorialPage"),
+            width=100,
+            fg_color="#D9D9D9",
+            text_color="black",
+            hover_color="#C0C0C0"
+        )
+        tutorial_button.grid(row=0, column=2, sticky="ne", pady=20, padx=20)
+
+        # Mood Selection
         mood_label = ctk.CTkLabel(
             self,
-            text="I'm feeling...",
-            font=ctk.CTkFont(size=24, weight="bold"),
-            text_color="white",
+            text="Select Your Mood",
+            font=ctk.CTkFont(size=18),
+            text_color="white"
         )
-        mood_label.grid(row=0, column=0, sticky="e", padx=(0, 15), pady=(20, 0))
+        mood_label.grid(row=1, column=0, pady=10, padx=20, sticky="w")
 
         self.mood_var = ctk.StringVar(value="Happy")
         mood_options = ["Happy", "Sad", "Relaxed", "Energetic"]
@@ -117,88 +132,66 @@ class GeneratorPage(ctk.CTkFrame):
             self,
             variable=self.mood_var,
             values=mood_options,
-            fg_color="white",
-            text_color="black",
-            font=ctk.CTkFont(size=16),
+            font=ctk.CTkFont(size=14),
         )
-        mood_dropdown.grid(row=0, column=1, sticky="w", padx=(15, 0), pady=(20, 0))
+        mood_dropdown.grid(row=2, column=0, pady=15, padx=20, sticky="w")
 
-        # (4) Tutorial Button
-        tutorial_button = ctk.CTkButton(
-            self,
-            text="Tutorial",
-            font=ctk.CTkFont(size=16, weight="bold"),
-            fg_color="white",
-            text_color="black",
-            width=120,
-            command=lambda: controller.show_frame("TutorialPage"),
-        )
-        tutorial_button.grid(row=0, column=1, sticky="ne", padx=(0, 20), pady=10)
-
-        # (2) Playlist Display
-        playlist_frame = ctk.CTkFrame(self, fg_color="white", corner_radius=10)
-        playlist_frame.grid(
-            row=1, column=0, columnspan=2, sticky="nsew", padx=40, pady=10
-        )
-
-        playlist_label = ctk.CTkLabel(
-            playlist_frame,
-            text="Generated Playlist:",
-            font=ctk.CTkFont(size=20, weight="bold"),
-            text_color="black",
-        )
-        playlist_label.pack(pady=(10, 5), anchor="w", padx=10)
+        # Playlist Display
+        playlist_frame = ctk.CTkFrame(self, width=600, height=300, fg_color="white")
+        playlist_frame.grid(row=3, column=0, pady=20, padx=20, sticky="w")
 
         self.playlist_textbox = ctk.CTkTextbox(
             playlist_frame,
+            height=250,
+            width=580,
+            font=ctk.CTkFont(size=14)
+        )
+        self.playlist_textbox.pack(pady=10, padx=10)
+        self.playlist_textbox.configure(state="disabled")  # Initially read-only
+
+        # Favorite Button (inside the playlist box)
+        favorite_button = ctk.CTkButton(
+            playlist_frame,
+            text="❤",
             font=ctk.CTkFont(size=16),
-            text_color="black",
-            wrap="word",
-            state="disabled",
+            fg_color="#D9D9D9",
+            text_color="#FF0000",
+            hover_color="#E57373",
+            command=self.save_favorite
         )
-        self.playlist_textbox.pack(fill="both", expand=True, padx=10, pady=10)
+        favorite_button.pack(side="right", padx=10)
 
-        # (3) Save Playlist Button (Heart Icon)
-        save_button = ctk.CTkButton(
-            self,
-            text="♥ Save",
-            font=ctk.CTkFont(size=16, weight="bold"),
-            fg_color="white",
-            text_color="red",
-            command=self.save_playlist,
-        )
-        save_button.grid(row=1, column=1, sticky="ne", padx=20, pady=20)
+        # Generate and Regenerate Buttons
+        button_frame = ctk.CTkFrame(self, fg_color="#D33232")
+        button_frame.grid(row=3, column=1, pady=20, padx=10, sticky="n")
 
-        # (5) Generate Button
         generate_button = ctk.CTkButton(
-            self,
+            button_frame,
             text="Generate",
-            font=ctk.CTkFont(size=18, weight="bold"),
-            fg_color="white",
-            text_color="black",
-            corner_radius=30,
-            width=180,
-            height=50,
-            command=self.generate_playlist,
+            font=ctk.CTkFont(size=16, weight="bold"),
+            command=self.generate_playlist
         )
-        generate_button.grid(row=2, column=0, sticky="e", padx=(0, 30), pady=20)
+        generate_button.pack(pady=10, padx=20)
 
-        # (6) Regenerate Button
         regenerate_button = ctk.CTkButton(
-            self,
+            button_frame,
             text="Regenerate",
-            font=ctk.CTkFont(size=18, weight="bold"),
-            fg_color="white",
-            text_color="black",
-            corner_radius=30,
-            width=180,
-            height=50,
-            command=self.regenerate_playlist,
+            font=ctk.CTkFont(size=16, weight="bold"),
+            command=self.regenerate_playlist
         )
-        regenerate_button.grid(row=2, column=1, sticky="w", padx=(30, 0), pady=20)
+        regenerate_button.pack(pady=10, padx=20)
+
+        # Back Button
+        back_button = ctk.CTkButton(
+            self,
+            text="Back to Home",
+            font=ctk.CTkFont(size=16, weight="bold"),
+            command=lambda: controller.show_frame("HomePage")
+        )
+        back_button.grid(row=4, column=0, columnspan=2, pady=20)
 
     def generate_playlist(self):
-        """Generate a playlist based on the selected mood."""
+        """Generates a playlist based on the selected mood."""
         mood = self.mood_var.get()
         try:
             with open("songs.json", "r") as f:
@@ -212,15 +205,51 @@ class GeneratorPage(ctk.CTkFrame):
             self.update_playlist_display("No songs found for the selected mood.")
             return
 
-        playlist = random.sample(playlist, min(10, len(playlist)))
+        self.current_playlist = random.sample(playlist, min(10, len(playlist)))
         self.update_playlist_display(
             f"{mood} Playlist:\n" +
-            "\n".join(f"{song['song']} by {song['artist']}" for song in playlist)
+            "\n".join(f"{song['song']} by {song['artist']}" for song in self.current_playlist)
         )
 
-    def save_playlist(self):
-        """Save the displayed playlist to a text file."""
-        if not self.playlist_textbox.get("1.0", tk.END).strip():
+    def regenerate_playlist(self):
+        """Regenerates the playlist with at least 50% difference in songs."""
+        if not hasattr(self, "current_playlist") or not self.current_playlist:
+            messagebox.showerror("Error", "No playlist exists to regenerate. Generate one first.")
+            return
+
+        mood = self.mood_var.get()
+        try:
+            with open("songs.json", "r") as f:
+                song_data = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            messagebox.showerror("Error", "Unable to load songs.json file.")
+            return
+
+        playlist = song_data.get(mood, [])
+        if not playlist:
+            messagebox.showerror("Error", "No songs available for the selected mood.")
+            return
+
+        # Ensure at least 50% of the playlist is different
+        new_playlist = random.sample(playlist, min(10, len(playlist)))
+        differences = len(set(song["song"] for song in new_playlist) -
+                          set(song["song"] for song in self.current_playlist))
+
+        if differences < len(new_playlist) / 2:
+            messagebox.showerror(
+                "Regenerate Warning",
+                "Unable to ensure at least 50% difference in regenerated playlist."
+            )
+
+        self.current_playlist = new_playlist
+        self.update_playlist_display(
+            f"{mood} Playlist (Regenerated):\n" +
+            "\n".join(f"{song['song']} by {song['artist']}" for song in self.current_playlist)
+        )
+
+    def save_favorite(self):
+        """Save the current playlist as a favorite."""
+        if not hasattr(self, "current_playlist") or not self.current_playlist:
             messagebox.showerror("Error", "No playlist to save.")
             return
 
@@ -229,19 +258,15 @@ class GeneratorPage(ctk.CTkFrame):
             return
 
         with open(file_path, "w") as file:
-            file.write(self.playlist_textbox.get("1.0", tk.END).strip())
+            file.write("\n".join(f"{song['song']} by {song['artist']}" for song in self.current_playlist))
 
-        messagebox.showinfo("Success", f"Playlist saved to {file_path}")
-
-    def regenerate_playlist(self):
-        """Regenerate the playlist for the currently selected mood."""
-        self.generate_playlist()
+        messagebox.showinfo("Success", f"Playlist saved as favorite at {file_path}")
 
     def update_playlist_display(self, text):
-        """Update the playlist display textbox with given text."""
+        """Updates the playlist display box with the specified text."""
         self.playlist_textbox.configure(state="normal")
         self.playlist_textbox.delete("1.0", tk.END)
-        self.playlist_textbox.insert(tk.END, text)
+        self.playlist_textbox.insert("1.0", text)
         self.playlist_textbox.configure(state="disabled")
 
 
