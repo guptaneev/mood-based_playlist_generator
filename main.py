@@ -13,14 +13,14 @@ class App(ctk.CTk):
         self.geometry("600x400")
         self.state("zoomed")  # Start in fullscreen mode
         self.configure(fg_color="#D33232")  # Background color of the app
-        
+
         # Configure grid weights for the main window
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
-                
+
         container = ctk.CTkFrame(self)
         container.grid(row=0, column=0, sticky="nsew")
-                
+
         # Navigate to HomePage initially
         self.frames = {}
         for Page in (HomePage, GeneratorPage, TutorialPage):
@@ -33,60 +33,65 @@ class App(ctk.CTk):
         frame = self.frames[page_name]
         frame.tkraise()
 
-# Home Page
+
 class HomePage(ctk.CTkFrame):
     def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller
-        self.configure(fg_color="#D33232")  # Background color for the Home Page
+        self.configure(fg_color="#D33232")  # Solid red background for the Home Page
 
-        # Configure grid layout
-        self.grid_columnconfigure(0, weight=1)  # Title Column
-        self.grid_columnconfigure(1, weight=1)  # Button Column
-        self.grid_rowconfigure(0, weight=1)  # Align items vertically
+        # Configure grid layout for central alignment
+        self.grid_rowconfigure(0, weight=1)  # Top spacer
+        self.grid_rowconfigure(1, weight=2)  # Title and button vertical space
+        self.grid_rowconfigure(2, weight=1)  # Bottom spacer
+        self.grid_columnconfigure(0, weight=2)  # Left side for Title
+        self.grid_columnconfigure(1, weight=1)  # Right side for Button
 
-        # Frame for the vertical text title
+        # Title Frame
         text_frame = ctk.CTkFrame(self, fg_color="#D33232")
-        text_frame.grid(row=0, column=0, sticky="nsew", padx=20)
+        text_frame.grid(row=1, column=0, sticky="nsew", padx=20, pady=(50, 0))  # Shifted down with top padding
 
-        # Title text as three separate rows
+        # Title text as three separate rows (centrally aligned)
         title1 = ctk.CTkLabel(
             text_frame,
             text="Mood-Based",
-            font=ctk.CTkFont(size=36, weight="bold"),
+            font=ctk.CTkFont(size=72, weight="bold"),  # Much larger font size
             text_color="black",
         )
-        title1.pack(anchor="w")
+        title1.pack(anchor="center")
 
         title2 = ctk.CTkLabel(
             text_frame,
             text="Playlist",
-            font=ctk.CTkFont(size=36, weight="bold"),
+            font=ctk.CTkFont(size=72, weight="bold"),  # Much larger font size
             text_color="black",
         )
-        title2.pack(anchor="w")
+        title2.pack(anchor="center")
 
         title3 = ctk.CTkLabel(
             text_frame,
             text="Generator",
-            font=ctk.CTkFont(size=36, weight="bold"),
+            font=ctk.CTkFont(size=72, weight="bold"),  # Much larger font size
             text_color="black",
         )
-        title3.pack(anchor="w")
+        title3.pack(anchor="center")
 
-        # Oval Start Button
+        # Start Button
         start_button = ctk.CTkButton(
             self,
             text="Start",
-            font=ctk.CTkFont(size=18),
+            font=ctk.CTkFont(size=36, weight="bold"),  # Larger text for the button
             fg_color="white",
+            hover_color="#F08080",  # Lighter red hover color
             text_color="black",
-            corner_radius=35,  # Oval shape
+            corner_radius=40,  # Keeps it rounded but larger
             command=lambda: controller.show_frame("GeneratorPage"),
-            width=120,
-            height=60,
+            width=250,  # Larger button width
+            height=100,  # Larger button height
         )
-        start_button.grid(row=0, column=1, sticky="n", padx=(10, 50))
+        start_button.grid(
+            row=1, column=1, sticky="n", padx=(20, 50), pady=(70, 0)
+        )  # Shifted down with top padding
 
 
 class GeneratorPage(ctk.CTkFrame):
@@ -111,34 +116,50 @@ class GeneratorPage(ctk.CTkFrame):
             font=ctk.CTkFont(size=14, weight="bold"),
             command=lambda: controller.show_frame("TutorialPage"),
             width=100,
-            fg_color="#D9D9D9",
+            fg_color="white",
             text_color="black",
-            hover_color="#C0C0C0"
+            hover_color="#F0F0F0"
         )
         tutorial_button.grid(row=0, column=2, sticky="ne", pady=20, padx=20)
 
-        # Mood Selection
+        # Mood Selection (Label and Dropdown combined as a sentence)
+        mood_frame = ctk.CTkFrame(self, fg_color="#D33232")
+        mood_frame.grid(row=1, column=0, columnspan=2, pady=10, padx=20, sticky="w")
+
         mood_label = ctk.CTkLabel(
-            self,
-            text="Select Your Mood",
+            mood_frame,
+            text="I'm feeling...",
             font=ctk.CTkFont(size=18),
             text_color="white"
         )
-        mood_label.grid(row=1, column=0, pady=10, padx=20, sticky="w")
+        mood_label.pack(side="left", padx=5)
 
         self.mood_var = ctk.StringVar(value="Happy")
         mood_options = ["Happy", "Sad", "Relaxed", "Energetic"]
         mood_dropdown = ctk.CTkOptionMenu(
-            self,
+            mood_frame,
             variable=self.mood_var,
             values=mood_options,
-            font=ctk.CTkFont(size=14),
+            font=ctk.CTkFont(size=14)
         )
-        mood_dropdown.grid(row=2, column=0, pady=15, padx=20, sticky="w")
+        mood_dropdown.pack(side="left", padx=10)
 
         # Playlist Display
         playlist_frame = ctk.CTkFrame(self, width=600, height=300, fg_color="white")
         playlist_frame.grid(row=3, column=0, pady=20, padx=20, sticky="w")
+
+        # Favorite Button (top right of the playlist box)
+        favorite_button = ctk.CTkButton(
+            playlist_frame,
+            text="❤",
+            font=ctk.CTkFont(size=16),
+            fg_color="white",
+            text_color="#FF0000",
+            hover_color="#F0F0F0",
+            command=self.save_favorite,
+            width=40
+        )
+        favorite_button.pack(anchor="ne", padx=5, pady=5)
 
         self.playlist_textbox = ctk.CTkTextbox(
             playlist_frame,
@@ -146,20 +167,8 @@ class GeneratorPage(ctk.CTkFrame):
             width=580,
             font=ctk.CTkFont(size=14)
         )
-        self.playlist_textbox.pack(pady=10, padx=10)
+        self.playlist_textbox.pack(pady=(0, 10), padx=10)
         self.playlist_textbox.configure(state="disabled")  # Initially read-only
-
-        # Favorite Button (inside the playlist box)
-        favorite_button = ctk.CTkButton(
-            playlist_frame,
-            text="❤",
-            font=ctk.CTkFont(size=16),
-            fg_color="#D9D9D9",
-            text_color="#FF0000",
-            hover_color="#E57373",
-            command=self.save_favorite
-        )
-        favorite_button.pack(side="right", padx=10)
 
         # Generate and Regenerate Buttons
         button_frame = ctk.CTkFrame(self, fg_color="#D33232")
@@ -169,7 +178,11 @@ class GeneratorPage(ctk.CTkFrame):
             button_frame,
             text="Generate",
             font=ctk.CTkFont(size=16, weight="bold"),
-            command=self.generate_playlist
+            command=self.generate_playlist,
+            fg_color="white",
+            text_color="black",
+            hover_color="#F0F0F0",
+            width=120
         )
         generate_button.pack(pady=10, padx=20)
 
@@ -177,18 +190,13 @@ class GeneratorPage(ctk.CTkFrame):
             button_frame,
             text="Regenerate",
             font=ctk.CTkFont(size=16, weight="bold"),
-            command=self.regenerate_playlist
+            command=self.regenerate_playlist,
+            fg_color="white",
+            text_color="black",
+            hover_color="#F0F0F0",
+            width=120
         )
         regenerate_button.pack(pady=10, padx=20)
-
-        # Back Button
-        back_button = ctk.CTkButton(
-            self,
-            text="Back to Home",
-            font=ctk.CTkFont(size=16, weight="bold"),
-            command=lambda: controller.show_frame("HomePage")
-        )
-        back_button.grid(row=4, column=0, columnspan=2, pady=20)
 
     def generate_playlist(self):
         """Generates a playlist based on the selected mood."""
@@ -230,7 +238,6 @@ class GeneratorPage(ctk.CTkFrame):
             messagebox.showerror("Error", "No songs available for the selected mood.")
             return
 
-        # Ensure at least 50% of the playlist is different
         new_playlist = random.sample(playlist, min(10, len(playlist)))
         differences = len(set(song["song"] for song in new_playlist) -
                           set(song["song"] for song in self.current_playlist))
@@ -296,17 +303,21 @@ class TutorialPage(ctk.CTkFrame):
         # Navigation Buttons
         self.prev_button = ctk.CTkButton(
             self,
-            text="◀",
+            text="\u25C0",
             font=ctk.CTkFont(size=16, weight="bold"),
-            command=self.show_previous_step
+            command=self.show_previous_step,
+            fg_color="#D9D9D9",
+            hover_color="#C0C0C0"
         )
         self.prev_button.grid(row=1, column=0, pady=10, padx=20, sticky="e")
 
         self.next_button = ctk.CTkButton(
             self,
-            text="▶",
+            text="\u25B6",
             font=ctk.CTkFont(size=16, weight="bold"),
-            command=self.show_next_step
+            command=self.show_next_step,
+            fg_color="#D9D9D9",
+            hover_color="#C0C0C0"
         )
         self.next_button.grid(row=1, column=2, pady=10, padx=20, sticky="w")
 
@@ -327,6 +338,10 @@ class TutorialPage(ctk.CTkFrame):
             text="Back",
             font=ctk.CTkFont(size=16, weight="bold"),
             command=lambda: controller.show_frame("GeneratorPage"),
+            fg_color="#E57373",
+            text_color="black",
+            hover_color="#FFCCCC",
+            width=150
         )
         back_button.grid(row=0, column=2, pady=20, padx=20, sticky="e")
 
