@@ -300,24 +300,26 @@ class TutorialPage(ctk.CTkFrame):
         )
         title_label.grid(row=0, column=0, columnspan=3, pady=20, padx=20, sticky="w")
 
-        # Navigation Buttons
+        # Navigation Buttons with Black Arrows
         self.prev_button = ctk.CTkButton(
             self,
-            text="\u25C0",
-            font=ctk.CTkFont(size=16, weight="bold"),
+            text="<",  # Black V-shaped arrow
+            font=ctk.CTkFont(size=28, weight="bold"),  # Larger font for better visibility
             command=self.show_previous_step,
             fg_color="#D9D9D9",
-            hover_color="#C0C0C0"
+            hover_color="#C0C0C0",
+            text_color="black"
         )
         self.prev_button.grid(row=1, column=0, pady=10, padx=20, sticky="e")
 
         self.next_button = ctk.CTkButton(
             self,
-            text="\u25B6",
-            font=ctk.CTkFont(size=16, weight="bold"),
+            text=">",  # Black V-shaped arrow pointing right
+            font=ctk.CTkFont(size=28, weight="bold"),  # Larger font for better visibility
             command=self.show_next_step,
             fg_color="#D9D9D9",
-            hover_color="#C0C0C0"
+            hover_color="#C0C0C0",
+            text_color="black"
         )
         self.next_button.grid(row=1, column=2, pady=10, padx=20, sticky="w")
 
@@ -372,7 +374,6 @@ class TutorialPage(ctk.CTkFrame):
         """Enable or disable navigation buttons based on the current step."""
         self.prev_button.configure(state="normal" if self.current_step > 0 else "disabled")
         self.next_button.configure(state="normal" if self.current_step < len(self.steps) - 1 else "disabled")
-
 
 if __name__ == "__main__":
     app = App()
