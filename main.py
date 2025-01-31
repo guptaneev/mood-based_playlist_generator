@@ -4,6 +4,14 @@ import tkinter as tk
 from tkinter import messagebox, filedialog
 import customtkinter as ctk
 
+# Mood-based colors
+MOOD_COLORS = {
+    "Happy": ("#FFD700", "Generate Happy Playlist", "Regenerate Happy Playlist"),
+    "Sad": ("#4682B4", "Generate Sad Playlist", "Regenerate Sad Playlist"),
+    "Relaxed": ("#98FB98", "Generate Relaxed Playlist", "Regenerate Relaxed Playlist"),
+    "Energetic": ("#FF4500", "Generate Energetic Playlist", "Regenerate Energetic Playlist"),
+    "Romantic": ("#FF69B4", "Generate Romantic Playlist", "Regenerate Romantic Playlist")
+}
 
 # App Configuration
 class App(ctk.CTk):
@@ -135,7 +143,7 @@ class GeneratorPage(ctk.CTkFrame):
         mood_label.pack(side="left", padx=5)
 
         self.mood_var = ctk.StringVar(value="Happy")
-        mood_options = ["Happy", "Sad", "Relaxed", "Energetic"]
+        mood_options = list(MOOD_COLORS.keys())  # Dynamically fetch moods from MOOD_COLORS dictionary
         mood_dropdown = ctk.CTkOptionMenu(
             mood_frame,
             variable=self.mood_var,
@@ -174,7 +182,7 @@ class GeneratorPage(ctk.CTkFrame):
         button_frame = ctk.CTkFrame(self, fg_color="#D33232")
         button_frame.grid(row=3, column=1, pady=20, padx=10, sticky="n")
 
-        generate_button = ctk.CTkButton(
+        self.generate_button = ctk.CTkButton(
             button_frame,
             text="Generate",
             font=ctk.CTkFont(size=16, weight="bold"),
@@ -184,9 +192,9 @@ class GeneratorPage(ctk.CTkFrame):
             hover_color="#F0F0F0",
             width=120
         )
-        generate_button.pack(pady=10, padx=20)
+        self.generate_button.pack(pady=10, padx=20)
 
-        regenerate_button = ctk.CTkButton(
+        self.regenerate_button = ctk.CTkButton(
             button_frame,
             text="Regenerate",
             font=ctk.CTkFont(size=16, weight="bold"),
@@ -196,10 +204,22 @@ class GeneratorPage(ctk.CTkFrame):
             hover_color="#F0F0F0",
             width=120
         )
-        regenerate_button.pack(pady=10, padx=20)
+        self.regenerate_button.pack(pady=10, padx=20)
+        
+    def update_visuals(self, mood):
+        """Updates the background color and button text based on the selected mood."""
+        bg_color, generate_text, regenerate_text = MOOD_COLORS.get(mood, ("#D33232", "Generate", "Regenerate"))
+    
+        # Change background color
+        self.configure(fg_color=bg_color)
+    
+        # Update button texts
+        self.generate_button.configure(text=generate_text)
+        self.regenerate_button.configure(text=regenerate_text)
 
     def generate_playlist(self):
         """Generates a playlist based on the selected mood."""
+        self.update_visuals(self.mood_var.get())  # Update UI based on the selected mood
         mood = self.mood_var.get()
         try:
             with open("songs.json", "r") as f:
@@ -285,10 +305,76 @@ class TutorialPage(ctk.CTkFrame):
 
         # Step information
         self.steps = [
-            "Step 1\n\n**Mood Selection:**\nSelect a mood from the dropdown to start generating playlists.",
-            "Step 2\n\n**Generate Button:**\nClick 'Generate' to create a playlist based on the selected mood.",
-            "Step 3\n\n**Regenerate Button:**\nUse 'Regenerate' to refresh your playlist with different songs for the same mood.",
-        ]
+    "Step 1\n\n**Mood Selection:**\n"
+    "The first step in using the Mood-Based Playlist Generator is selecting a mood. "
+    "Click on the dropdown menu and choose from a variety of moods such as 'Happy', 'Sad', "
+    "'Relaxed', 'Energetic', and more. This selection will determine the type of songs that appear in your playlist.\n\n"
+    "**Why it matters:**\n"
+    "Your mood choice directly affects the genre, tempo, and overall vibe of the generated playlist. "
+    "This ensures a tailored music experience based on how you’re feeling.",
+
+    "Step 2\n\n**Generate Button:**\n"
+    "Once a mood is selected, press the 'Generate' button to create a playlist. "
+    "The application will fetch a list of songs from its internal database based on the selected mood.\n\n"
+    "**How it works:**\n"
+    "- The system filters through a `.json` database containing categorized songs.\n"
+    "- It selects a predefined number of tracks that best match the chosen mood.\n"
+    "- The songs are displayed in a structured list format.\n\n"
+    "**Expected Outcome:**\n"
+    "A playlist of at least 10 songs (or as many as available in that mood category) will be displayed within seconds.",
+
+    "Step 3\n\n**Regenerate Button:**\n"
+    "If you are not satisfied with the generated playlist, press the 'Regenerate' button to get a new set of songs for the same mood.\n\n"
+    "**How it works:**\n"
+    "- The system ensures that at least 50% of the songs in the newly generated playlist are different from the previous selection.\n"
+    "- It prevents excessive repetition by keeping track of the last generated playlist.\n\n"
+    "**Why it’s useful:**\n"
+    "This feature ensures variety, allowing you to explore different songs under the same mood category without manual selection.",
+
+    "Step 4\n\n**Tutorial Button:**\n"
+    "At any time, you can access this tutorial by clicking the 'Tutorial' button. "
+    "This page provides a guided step-by-step breakdown of how to use the application effectively.\n\n"
+    "**What’s included in the tutorial:**\n"
+    "- How to select moods.\n"
+    "- How to generate playlists.\n"
+    "- How to regenerate a new playlist if needed.\n"
+    "- Navigation controls (back and next buttons).\n\n"
+    "**Why it’s important:**\n"
+    "This tutorial ensures that first-time users, as well as returning users, can understand all features of the app with ease.",
+
+    "Step 5\n\n**Navigation Between Tutorial Steps:**\n"
+    "Use the '<' (previous) and '>' (next) buttons to navigate through the tutorial steps. "
+    "Each step explains a different feature in detail.\n\n"
+    "**How it works:**\n"
+    "- The left arrow ('<') button takes you to the previous step.\n"
+    "- The right arrow ('>') button moves forward to the next step.\n"
+    "- The buttons are disabled when you reach the first or last step to prevent errors.\n\n"
+    "**Best Practice:**\n"
+    "Follow the tutorial in order to fully understand the application's functionalities.",
+
+    "Step 6\n\n**Returning to the Generator Page:**\n"
+    "Once you are familiar with the tutorial, you can return to the main Generator Page by clicking the 'Back' button at the top right of this page.\n\n"
+    "**Why this matters:**\n"
+    "The back button ensures smooth navigation and allows you to quickly return to the playlist generator without restarting the app.",
+
+    "Step 7\n\n**Saving & Exporting Playlists:**\n"
+    "After generating a playlist, you may want to save it for future listening. The application provides a save and export feature.\n\n"
+    "**How it works:**\n"
+    "- Click the heart icon next to the playlist to mark it as a favorite.\n"
+    "- Press the 'Save' button to store the playlist in the app.\n"
+    "- Use the 'Export' button to download the playlist as a `.txt` file to your device.\n\n"
+    "**Why it’s useful:**\n"
+    "This allows you to save your favorite music lists and share them with others easily.",
+
+    "Step 8\n\n**Adaptive Theme & Visual Experience:**\n"
+    "The app adapts its color scheme to match the selected mood, creating an immersive experience.\n\n"
+    "**How it works:**\n"
+    "- 'Happy' mood applies warm colors like yellow and orange.\n"
+    "- 'Sad' mood uses cooler shades like blue or gray.\n"
+    "- 'Energetic' mood shifts to bright reds and bold tones.\n\n"
+    "**Why it’s important:**\n"
+    "A visually adaptive UI enhances engagement and creates an emotionally resonant music selection process."
+]
         self.current_step = 0
 
         # Title
